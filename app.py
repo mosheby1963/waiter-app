@@ -45,6 +45,7 @@ with st.expander(f"➕ הזנת משמרת חדשה ל{user.split()[0]}", expand
             day_name = ["שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת", "ראשון"][date.weekday()]
 
             new_row = {
+                "שם המלצר": user, # עבר להתחלה
                 "תאריך": date.strftime("%d/%m/%Y"),
                 "יום": day_name,
                 "התחלה": start_time,
@@ -53,8 +54,7 @@ with st.expander(f"➕ הזנת משמרת חדשה ל{user.split()[0]}", expand
                 "מזומן": cash,
                 "אשראי": credit,
                 "השלמה": round(top_up, 2),
-                "סה\"כ": round(total, 2),
-                "שם המלצר": user
+                "סה\"כ": round(total, 2)
             }
             
             updated_df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
@@ -85,4 +85,5 @@ if not df.empty and "שם המלצר" in df.columns:
         st.write("אין עדיין נתונים רשומים על שמך.")
 else:
     st.warning("שים לב: עליך לוודא שקיימת עמודה בשם 'שם המלצר' בגוגל שיטס (עמודה J).")
+
 
