@@ -15,14 +15,14 @@ df = get_data()
 
 st.title("💰 מחשבון שכר ושמירה לענן")
 
-# --- בחירת משתמש במרכז המסך ---
+# --- בחירת משתמש ---
 st.subheader("👤 מי המלצר/ית?")
 user = st.selectbox("בחר שם מהרשימה:", ["ליהיא בן יאיר", "משה בן יאיר"])
 
 st.info(f"מחובר/ת בתור: **{user}**")
 
 # --- הזנת משמרת חדשה ---
-with st.expander(f"➕ הזנת משמרת חדשה ל{user.split()[0]}", expanded=False):
+with st.expander(f"➕ הזנת משמרת חדשה ל{user.split()[0]}", expanded=True):
     col1, col2 = st.columns(2)
     with col1:
         date = st.date_input("תאריך", datetime.now())
@@ -31,6 +31,7 @@ with st.expander(f"➕ הזנת משמרת חדשה ל{user.split()[0]}", expand
     with col2:
         cash = st.number_input("מזומן", min_value=0.0, step=1.0)
         credit = st.number_input("אשראי", min_value=0.0, step=1.0)
+        total_input = st.number_input("סכום כללי (אם ידוע)", min_value=0.0, step=1.0)
 
     if st.button("💾 שמור משמרת"):
         try:
@@ -40,12 +41,15 @@ with st.expander(f"➕ הזנת משמרת חדשה ל{user.split()[0]}", expand
             if t2 < t1: t2 += timedelta(days=1)
             hours = (t2 - t1).total_seconds() / 3600
             
-            top_up = max(0, (hours * 36) - (cash + credit))
-            total = cash + credit + top_up
+            # לוגיקת חישוב: אם הוזן סכום כללי, נשתמש בו. אחרת, נחבר מזומן ואשראי.
+            tips_sum = total_input if total_input > 0 else (cash + credit)
+            
+            top_up = max(0, (hours * 36) - tips_sum)
+            final_total = tips_sum + top_up
             day_name = ["שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת", "ראשון"][date.weekday()]
 
             new_row = {
-                "שם המלצר": user, # עבר להתחלה
+                "שם המלצר": user,
                 "תאריך": date.strftime("%d/%m/%Y"),
                 "יום": day_name,
                 "התחלה": start_time,
@@ -53,14 +57,15 @@ with st.expander(f"➕ הזנת משמרת חדשה ל{user.split()[0]}", expand
                 "שעות": round(hours, 2),
                 "מזומן": cash,
                 "אשראי": credit,
+                "סכום כללי": total_input,
                 "השלמה": round(top_up, 2),
-                "סה\"כ": round(total, 2)
+                "סה\"כ": round(final_total, 2)
             }
             
             updated_df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
             conn.update(data=updated_df)
             
-            st.success(f"✅ המשמרת נשמרה בחשבון של {user}!")
+            st.success(f"✅ המשמרת נשמרה בהצלחה!")
             st.rerun()
             
         except Exception as e:
@@ -70,9 +75,7 @@ with st.expander(f"➕ הזנת משמרת חדשה ל{user.split()[0]}", expand
 st.divider()
 st.subheader(f"📋 היסטוריה אישית: {user}")
 
-# בדיקה אם העמודה קיימת בגיליון
 if not df.empty and "שם המלצר" in df.columns:
-    # סינון הנתונים לפי המשתמש שנבחר ב-Selectbox
     user_df = df[df["שם המלצר"] == user]
     
     if not user_df.empty:
@@ -84,6 +87,4 @@ if not df.empty and "שם המלצר" in df.columns:
     else:
         st.write("אין עדיין נתונים רשומים על שמך.")
 else:
-    st.warning("שים לב: עליך לוודא שקיימת עמודה בשם 'שם המלצר' בגוגל שיטס (עמודה J).")
-
-
+    st.warning("יש לוודא שקיימות כל העמודות בגוגל שיטס לפי הסדר החדש.")
