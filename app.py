@@ -17,7 +17,7 @@ st.title("💰 מחשבון שכר ושמירה לענן")
 
 # --- בחירת משתמש במרכז המסך ---
 st.subheader("👤 מי המלצר/ית?")
-user = st.selectbox("בחר שם מהרשימה:", ["ליהיא בן יאיר", "משה בן יאיר", "בן יאיר"])
+user = st.selectbox("בחר שם מהרשימה:", ["ליהיא בן יאיר", "משה בן יאיר"])
 
 st.info(f"מחובר/ת בתור: **{user}**")
 
@@ -85,3 +85,4 @@ if not df.empty and "שם המלצר" in df.columns:
         st.write("אין עדיין נתונים רשומים על שמך.")
 else:
     st.warning("שים לב: עליך לוודא שקיימת עמודה בשם 'שם המלצר' בגוגל שיטס (עמודה J).")
+
